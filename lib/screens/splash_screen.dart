@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-          LottieBuilder.asset('assets/lottie/chat.json'),
+          LottieBuilder.asset('assets/lotties/chat.json'),
             Text(
               'My Chat App',
               style: TextStyle(
