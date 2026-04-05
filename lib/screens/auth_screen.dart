@@ -1,4 +1,6 @@
+import 'package:chat_application/providers/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
@@ -21,7 +23,15 @@ class AuthScreen extends StatelessWidget {
             ),
             Text('Connect with My Chat App'),
             SizedBox(height: 12),
-            Image.asset('assets/images/google_button.png', height: 60),
+            GestureDetector(
+              onTap: () {
+                Provider.of<UserProvider>(
+                  context,
+                  listen: false,
+                ).signInwithGoogle(context);
+              },
+              child: Image.asset('assets/images/google_button.png', height: 60),
+            ),
           ],
         ),
       ),
