@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:chat_application/providers/user_provider.dart';
 import 'package:chat_application/screens/auth_screen.dart';
 import 'package:chat_application/screens/home_page.dart';
 import 'package:chat_application/utils/navigation_manager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -23,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (user == null) {
         NavigationManager.goTo(context, AuthScreen());
       } else {
-        NavigationManager.goWithReplace(context, HomePage());
+        Provider.of<UserProvider>(context, listen: false).fetchUserData(context);
       }
     });
   }

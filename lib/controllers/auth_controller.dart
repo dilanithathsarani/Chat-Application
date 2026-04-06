@@ -23,4 +23,11 @@ class AuthController {
       return null;
     }
   }
+
+  Future<void> signOutGoogleUser() async {
+    
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn.instance.signOut();
+    
+  }
 }

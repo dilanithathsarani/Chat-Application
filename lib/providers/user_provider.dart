@@ -1,6 +1,9 @@
 import 'package:chat_application/controllers/auth_controller.dart';
+import 'package:chat_application/controllers/user_controller.dart';
 import 'package:chat_application/models/user_model.dart';
+import 'package:chat_application/screens/auth_screen.dart';
 import 'package:chat_application/screens/home_page.dart';
+import 'package:chat_application/utils/navigation_manager.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
@@ -21,6 +24,9 @@ class UserProvider extends ChangeNotifier {
         email: user.email ?? '',
         uid: user.uid,
       );
+
+      await UserController().saveUserData(_user!);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
@@ -28,5 +34,26 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  
+  Future<void> fetchUserData(BuildContext context) async {
+    _user = await UserController().fetchUserData();
+    if (_user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to fetch user data',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } else {
+      NavigationManager.goWithReplace(context, HomePage());
+    }
+  }
+
+  Future<void> signOutUser(BuildContext context) async {
+    _user = null;
+    await AuthController().signOutGoogleUser();
+    NavigationManager.goWithReplace(context, AuthScreen());
+  }
 }
