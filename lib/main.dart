@@ -1,4 +1,5 @@
 import 'package:chat_application/firebase_options.dart';
+import 'package:chat_application/providers/chat_provider.dart';
 import 'package:chat_application/providers/user_provider.dart';
 import 'package:chat_application/screens/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -10,7 +11,10 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (context) => UserProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserProvider()),
+        ChangeNotifierProvider(create: (context) => ChatProvider()),
+      ],
       child: MyApp(),
     ),
   );

@@ -26,4 +26,14 @@ class UserController {
     }
     
   }
+
+  Stream<List<UserModel>> getUserStream() {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+    return userCollection
+        .where('uid', isNotEqualTo: uid)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((userData) => UserModel.fromJson(userData.data())).toList());
+  }
 }

@@ -1,4 +1,3 @@
-import 'package:chat_application/data/demo_data.dart';
 import 'package:chat_application/providers/user_provider.dart';
 import 'package:chat_application/screens/chat_screen.dart';
 import 'package:chat_application/screens/contacts.dart';
@@ -124,9 +123,9 @@ class _HomePageState extends State<HomePage> {
                   removeBottom: true,
                   child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: DemoData.demoConversations().length,
+                    itemCount: 5,
                     itemBuilder: (context, index) {
-                      final conversation = DemoData.demoConversations()[index];
+                      
                       return ListTile(
                         onTap: () {
                           // Navigate to chat screen with the selected conversation
@@ -137,17 +136,18 @@ class _HomePageState extends State<HomePage> {
                         },
                         leading: CircleAvatar(
                           backgroundColor: Colors.blue,
-                          backgroundImage: NetworkImage(conversation.image),
+                          
                         ),
+                        
                         title: Text(
-                          conversation.name,
+                          'John Doe',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        subtitle: Text(conversation.lastMessage),
-                        trailing: Text(conversation.lastMessageTime),
+                        subtitle: Text('Hello, how are you?'),
+                        trailing: Text('12:00 PM'),
                       );
                     },
                   ),
