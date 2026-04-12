@@ -1,4 +1,6 @@
+import 'package:chat_application/controllers/chat_controller.dart';
 import 'package:chat_application/providers/chat_provider.dart';
+import 'package:chat_application/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,16 +15,14 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ChatProvider>(
-      context,
-      listen: false,
-    ).getSelectedConversation();
+    Provider.of<ChatProvider>(context, listen: false).getSelectedConversation();
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    return Consumer<ChatProvider>(
-      builder: (context, chatProvider, child) {
+    return Consumer2<ChatProvider, UserProvider>(
+      builder: (context, chatProvider, userProvider, child) {
         return Scaffold(
           bottomNavigationBar: Padding(
             padding: MediaQuery.of(context).viewInsets,
@@ -39,8 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: size.width * 0.7,
+                    Expanded(
                       child: TextField(
                         controller: chatProvider.messageController,
                         cursorColor: Colors.grey.shade800,
@@ -52,7 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     IconButton(
                       onPressed: () {
-                        chatProvider.sendMessage();
+                        chatProvider.sendMessage(context);
                       },
                       icon: Icon(Icons.send_rounded, color: Colors.blue),
                     ),
@@ -96,14 +95,54 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 Divider(),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: 5,
-                    shrinkWrap: true,
-                    reverse: true,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title: Text('Hello'),
-                        subtitle: Text('How are you?'),
+                  child: StreamBuilder(
+                    stream: ChatController().getMessages(
+                      chatProvider.generateConversationId(),
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.data == null) {
+                        return Center(child: Text('No messages yet'));
+                      }
+
+                      if (snapshot.data != null && snapshot.data!.isEmpty) {
+                        return Center(child: Text('No messages yet'));
+                      }
+
+                      final messages = snapshot.data!;
+
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ListView.builder(
+                          itemCount: messages.length,
+                          itemBuilder: (context, index) {
+                            final message = messages[index];
+                            bool isSender =
+                                message.senderId == userProvider.user!.uid;
+
+                            return Align(
+                              alignment: isSender
+                                  ? Alignment.topRight
+                                  : Alignment.topLeft,
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: isSender
+                                      ? Colors.blue
+                                      : Colors.grey.shade600,
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Text(
+                                  message.message,
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                   ),

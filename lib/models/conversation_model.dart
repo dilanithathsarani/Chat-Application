@@ -19,8 +19,8 @@ class ConversationModel {
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
-final users = (json['userData'] as List<dynamic>)
-        .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
+    final users = (json['userData'] as List<Map<String, dynamic>>)
+        .map((e) => UserModel.fromJson(e))
         .toList();
 
     return ConversationModel(
