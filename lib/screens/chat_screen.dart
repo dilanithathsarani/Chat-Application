@@ -25,7 +25,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.sizeOf(context);
     return Consumer2<ChatProvider, UserProvider>(
       builder: (context, chatProvider, userProvider, child) {
         final conversationUser =
@@ -136,6 +135,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       return Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ListView.builder(
+                          reverse: true,
                           itemCount: messages.length,
                           itemBuilder: (context, index) {
                             final message = messages[index];

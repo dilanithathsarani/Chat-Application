@@ -16,24 +16,31 @@ class UserController {
 
   Future<UserModel?> fetchUserData() async {
     try {
-      final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-      final userData = await userCollection.doc(uid).get();
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return null;
 
-      return UserModel.fromJson(userData.data() as Map<String, dynamic>);
+      final userData = await userCollection.doc(uid).get();
+      final data = userData.data();
+      if (!userData.exists || data == null) return null;
+
+      return UserModel.fromJson(data);
     } catch (e) {
       Logger().e(e);
       return null;
     }
-    
   }
 
   Stream<List<UserModel>> getUserStream() {
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return const Stream.empty();
 
     return userCollection
         .where('uid', isNotEqualTo: uid)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((userData) => UserModel.fromJson(userData.data())).toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((userData) => UserModel.fromJson(userData.data()))
+              .toList(),
+        );
   }
 }

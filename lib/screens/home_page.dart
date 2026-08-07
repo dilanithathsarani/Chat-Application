@@ -207,7 +207,9 @@ class _HomePageState extends State<HomePage> {
                             ),
                             subtitle: Text(conversation.lastMessage),
                             trailing: Text(
-                              DateFormat('hh:mm a').format(conversation.lastMessageTime),
+                              DateFormat(
+                                'hh:mm a',
+                              ).format(conversation.lastMessageTime),
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,

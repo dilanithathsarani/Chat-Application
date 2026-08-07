@@ -24,12 +24,16 @@ class ConversationModel {
         .toList();
 
     return ConversationModel(
-      lastMessage: json['lastMessage'],
-      lastMessageTime: (json['lastMessageTime'] as Timestamp).toDate(),
-      senderId: json['senderId'],
-      userIds: (json['userIds'] as List<dynamic>).map((e) => e as String).toList(),
+      lastMessage: json['lastMessage'] as String? ?? '',
+      lastMessageTime:
+          (json['lastMessageTime'] as Timestamp?)?.toDate() ??
+          DateTime.fromMillisecondsSinceEpoch(0),
+      senderId: json['senderId'] as String? ?? '',
+      userIds: (json['userIds'] as List<dynamic>? ?? const [])
+          .whereType<String>()
+          .toList(),
       userData: users,
-      conversationId: json['conversationId'],
+      conversationId: json['conversationId'] as String? ?? '',
     );
   }
 
@@ -39,7 +43,7 @@ class ConversationModel {
       'lastMessageTime': Timestamp.fromDate(lastMessageTime),
       'senderId': senderId,
       'userIds': userIds,
-      'userData': userData.map((e) => e.toJson()),
+      'userData': userData.map((e) => e.toJson()).toList(),
       'conversationId': conversationId,
     };
   }

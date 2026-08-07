@@ -15,9 +15,11 @@ class AuthController {
         idToken: googleAuth.idToken,
       );
 
-     final userCredential= await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
 
-     return userCredential.user;
+      return userCredential.user;
     } catch (e) {
       Logger().e(e);
       return null;
@@ -25,9 +27,7 @@ class AuthController {
   }
 
   Future<void> signOutGoogleUser() async {
-    
-      await FirebaseAuth.instance.signOut();
-      await GoogleSignIn.instance.signOut();
-    
+    await FirebaseAuth.instance.signOut();
+    await GoogleSignIn.instance.signOut();
   }
 }

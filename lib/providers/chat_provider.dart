@@ -34,7 +34,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   Future<void> sendMessage(BuildContext context) async {
-    final messageId = Uuid().v4();
+    final messageId = const Uuid().v4();
     final myUserModel = Provider.of<UserProvider>(context, listen: false).user!;
     final receiverUserModel =
         _selectedUser ??
@@ -93,5 +93,11 @@ class ChatProvider extends ChangeNotifier {
     List<String> uids = [myUid, receiverUid];
     uids.sort();
     return uids.join('_');
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
   }
 }

@@ -13,6 +13,8 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> signInwithGoogle(BuildContext context) async {
     final user = await AuthController().signInWithGoogle();
+    if (!context.mounted) return;
+
     if (user == null) {
       ScaffoldMessenger.of(
         context,
@@ -27,6 +29,7 @@ class UserProvider extends ChangeNotifier {
 
       await UserController().saveUserData(_user!);
 
+      if (!context.mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),
@@ -36,6 +39,7 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> fetchUserData(BuildContext context) async {
     _user = await UserController().fetchUserData();
+    if (!context.mounted) return;
     if (_user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -54,6 +58,7 @@ class UserProvider extends ChangeNotifier {
   Future<void> signOutUser(BuildContext context) async {
     _user = null;
     await AuthController().signOutGoogleUser();
+    if (!context.mounted) return;
     NavigationManager.goWithReplace(context, AuthScreen());
   }
 }
