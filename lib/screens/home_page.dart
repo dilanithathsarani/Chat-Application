@@ -4,6 +4,7 @@ import 'package:chat_application/controllers/chat_controller.dart';
 import 'package:chat_application/models/conversation_model.dart';
 import 'package:chat_application/screens/chat_screen.dart';
 import 'package:chat_application/screens/contacts.dart';
+import 'package:chat_application/utils/navigation_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -178,10 +179,16 @@ class _HomePageState extends State<HomePage> {
                                 userData.uid != userProvider.user!.uid,
                           );
 
+                          final isSender = conversation.senderId == userProvider.user!.uid;
                           return ListTile(
                             onTap: () {
-                              chatProvider.setSelectedConversation(
-                                conversation,
+                              Provider.of<ChatProvider>(
+                                context,
+                                listen: false,
+                              ).setSelectUser(otherUser);
+                              NavigationManager.goTo(
+                                context,
+                                ChatScreen(),
                               );
                               Navigator.push(
                                 context,
@@ -205,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            subtitle: Text(conversation.lastMessage),
+                            subtitle: Text('${isSender ? "You: " : ""}${conversation.lastMessage}'),
                             trailing: Text(
                               DateFormat(
                                 'hh:mm a',

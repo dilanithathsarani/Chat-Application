@@ -2,6 +2,7 @@ import 'package:chat_application/controllers/chat_controller.dart';
 import 'package:chat_application/providers/chat_provider.dart';
 import 'package:chat_application/providers/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -146,18 +147,64 @@ class _ChatScreenState extends State<ChatScreen> {
                               alignment: isSender
                                   ? Alignment.topRight
                                   : Alignment.topLeft,
-                              child: Container(
-                                padding: EdgeInsets.all(8),
-                                margin: EdgeInsets.only(bottom: 8),
-                                decoration: BoxDecoration(
-                                  color: isSender
-                                      ? Colors.blue
-                                      : Colors.grey.shade600,
-                                  borderRadius: BorderRadius.circular(15),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0,
                                 ),
-                                child: Text(
-                                  message.message,
-                                  style: TextStyle(color: Colors.white),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        if (!isSender)
+                                          CircleAvatar(
+                                            radius: 12,
+                                            backgroundImage: NetworkImage(
+                                              chatProvider
+                                                      .selectedUser
+                                                      ?.image ??
+                                                  '',
+                                            ),
+                                          ),
+                                        SizedBox(width: 12),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.all(8),
+                                              margin: EdgeInsets.only(
+                                                bottom: 8,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: isSender
+                                                    ? Colors.blue
+                                                    : Colors.grey.shade600,
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              child: Text(
+                                                message.message,
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              DateFormat(
+                                                'hh:mm a',
+                                              ).format(message.time),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey.shade600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
