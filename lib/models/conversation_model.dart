@@ -19,15 +19,15 @@ class ConversationModel {
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
-    final users = (json['userData'] as List<Map<String, dynamic>>)
-        .map((e) => UserModel.fromJson(e))
+    final users = (json['userData'] as List<dynamic>? ?? const [])
+        .map((e) => UserModel.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
 
     return ConversationModel(
       lastMessage: json['lastMessage'],
       lastMessageTime: (json['lastMessageTime'] as Timestamp).toDate(),
       senderId: json['senderId'],
-      userIds: List<String>.from(json['userIds']),
+      userIds: (json['userIds'] as List<dynamic>).map((e) => e as String).toList(),
       userData: users,
       conversationId: json['conversationId'],
     );

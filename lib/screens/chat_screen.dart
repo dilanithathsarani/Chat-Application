@@ -15,7 +15,12 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ChatProvider>(context, listen: false).getSelectedConversation();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ChatProvider>(
+        context,
+        listen: false,
+      ).getSelectedConversation();
+    });
   }
 
   @override
@@ -23,6 +28,18 @@ class _ChatScreenState extends State<ChatScreen> {
     final size = MediaQuery.sizeOf(context);
     return Consumer2<ChatProvider, UserProvider>(
       builder: (context, chatProvider, userProvider, child) {
+        final conversationUser =
+            chatProvider.selectedUser ??
+            chatProvider.selectedConversation?.userData.firstWhere(
+              (userData) => userData.uid != userProvider.user!.uid,
+            );
+
+        if (conversationUser == null) {
+          return const Scaffold(
+            body: Center(child: Text('No conversation selected')),
+          );
+        }
+
         return Scaffold(
           bottomNavigationBar: Padding(
             padding: MediaQuery.of(context).viewInsets,
@@ -69,16 +86,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     BackButton(),
                     SizedBox(width: 10),
                     CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        chatProvider.selectedUser!.image,
-                      ),
+                      backgroundImage: NetworkImage(conversationUser.image),
                     ),
                     SizedBox(width: 10),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          chatProvider.selectedUser!.name,
+                          conversationUser.name,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -100,6 +115,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       chatProvider.generateConversationId(),
                     ),
                     builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(child: Text('Failed to load messages'));
+                      }
+
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
                       }
@@ -129,6 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   : Alignment.topLeft,
                               child: Container(
                                 padding: EdgeInsets.all(8),
+                                margin: EdgeInsets.only(bottom: 8),
                                 decoration: BoxDecoration(
                                   color: isSender
                                       ? Colors.blue

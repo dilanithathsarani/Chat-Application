@@ -4,7 +4,6 @@ import 'package:chat_application/models/user_model.dart';
 import 'package:chat_application/models/conversation_model.dart';
 import 'package:chat_application/providers/user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +22,14 @@ class ChatProvider extends ChangeNotifier {
   void setSelectUser(UserModel user) {
     _selectedUser = user;
     _selectedConversation = null;
+    notifyListeners();
+  }
+
+  void setSelectedConversation(ConversationModel conversation) {
+    _selectedConversation = conversation;
+    _selectedUser = conversation.userData.firstWhere(
+      (userData) => userData.uid != FirebaseAuth.instance.currentUser!.uid,
+    );
     notifyListeners();
   }
 
@@ -68,9 +75,8 @@ class ChatProvider extends ChangeNotifier {
   }
 
   Future<void> getSelectedConversation() async {
-    if (_selectedConversation == null) {
+    if (_selectedConversation == null && _selectedUser != null) {
       final myUid = FirebaseAuth.instance.currentUser?.uid ?? '';
-      // Implementation for getting selected conversation
       _selectedConversation = await ChatController().getExistingConversation([
         _selectedUser!.uid,
         myUid,

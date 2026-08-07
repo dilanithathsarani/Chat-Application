@@ -2,6 +2,7 @@ import 'package:chat_application/models/conversation_model.dart';
 import 'package:chat_application/models/message_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:logger/logger.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatController {
   final conversationCollection = FirebaseFirestore.instance.collection(
@@ -27,8 +28,8 @@ class ChatController {
   }
 
   String generateConversationId(List<String> uids) {
-    uids.sort();
-    return uids.join('_');
+    final sortedUids = List<String>.from(uids)..sort();
+    return sortedUids.join('_');
   }
 
   Future<void> sendMessage(
@@ -36,21 +37,39 @@ class ChatController {
     ConversationModel conversation,
   ) async {
     await messageCollection.doc(message.messageId).set(message.toJson());
-    await conversationCollection.doc(conversation.conversationId).set({
-      'lastMessage': message.message,
-      'lastMessageTime': message.time,
-    });
+    await conversationCollection
+        .doc(conversation.conversationId)
+        .set(conversation.toJson(), SetOptions(merge: true));
   }
 
   Stream<List<MessageModel>> getMessages(String conId) {
     return messageCollection
-        .where('conversationId', isEqualTo: conId)
-        .orderBy('time', descending: true)
+        .where('conversationId', isEqualTo: conId).orderBy( 'time', descending: false)
         .snapshots()
         .map((message) {
-          return message.docs
+          final messages = message.docs
               .map((e) => MessageModel.fromJson(e.data()))
               .toList();
+          messages.sort((left, right) => right.time.compareTo(left.time));
+          return messages;
+        });
+  }
+
+  Stream<List<ConversationModel>> getConversations(String uid) {
+    final myUid = FirebaseAuth.instance.currentUser!.uid;
+    return conversationCollection
+        .where('userIds', arrayContains: myUid)
+        .orderBy( 'lastMessageTime', descending: false)
+        .snapshots()
+        .map((snapshot) {
+          final conversations = snapshot.docs
+              .map((doc) => ConversationModel.fromJson(doc.data()))
+              .toList();
+          conversations.sort(
+            (left, right) =>
+                right.lastMessageTime.compareTo(left.lastMessageTime),
+          );
+          return conversations;
         });
   }
 }
