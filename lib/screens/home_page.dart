@@ -5,8 +5,12 @@ import 'package:chat_application/models/conversation_model.dart';
 import 'package:chat_application/screens/chat_screen.dart';
 import 'package:chat_application/screens/contacts.dart';
 import 'package:chat_application/utils/navigation_manager.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,6 +21,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    _getFcmToken();
+  }
+
+  Future<void> _getFcmToken() async {
+    final firebaseMessaging = FirebaseMessaging.instance;
+
+    final token = await firebaseMessaging.getToken();
+    if (token != null) {
+      final uid= FirebaseAuth.instance.currentUser?.uid ?? '';
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update({'fcmToken': token});
+    } else {
+      Logger().e('Failed to get FCM token');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -179,17 +204,15 @@ class _HomePageState extends State<HomePage> {
                                 userData.uid != userProvider.user!.uid,
                           );
 
-                          final isSender = conversation.senderId == userProvider.user!.uid;
+                          final isSender =
+                              conversation.senderId == userProvider.user!.uid;
                           return ListTile(
                             onTap: () {
                               Provider.of<ChatProvider>(
                                 context,
                                 listen: false,
                               ).setSelectUser(otherUser);
-                              NavigationManager.goTo(
-                                context,
-                                ChatScreen(),
-                              );
+                              NavigationManager.goTo(context, ChatScreen());
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -212,7 +235,9 @@ class _HomePageState extends State<HomePage> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            subtitle: Text('${isSender ? "You: " : ""}${conversation.lastMessage}'),
+                            subtitle: Text(
+                              '${isSender ? "You: " : ""}${conversation.lastMessage}',
+                            ),
                             trailing: Text(
                               DateFormat(
                                 'hh:mm a',
