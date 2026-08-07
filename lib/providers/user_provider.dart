@@ -25,6 +25,8 @@ class UserProvider extends ChangeNotifier {
         name: user.displayName ?? '',
         email: user.email ?? '',
         uid: user.uid,
+        isOnline: true,
+        lastSeen: DateTime.now()
       );
 
       await UserController().saveUserData(_user!);

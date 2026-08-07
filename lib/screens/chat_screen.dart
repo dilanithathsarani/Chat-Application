@@ -99,9 +99,31 @@ class _ChatScreenState extends State<ChatScreen> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        Text(
-                          'Online',
-                          style: TextStyle(fontSize: 14, color: Colors.green),
+                        StreamBuilder(
+                          stream: chatProvider.listenToSelectedUser(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Text(
+                                'Loading...',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey.shade600,
+                                ),
+                              );
+                            }
+
+                            final userModel = snapshot.data!;
+                            return Text(
+                              userModel.isOnline
+                                  ? 'Online'
+                                  : 'Last seen: ${DateFormat('hh:mm a').format(userModel.lastSeen)}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.green,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -155,7 +177,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         if (!isSender)
@@ -170,7 +193,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                           ),
                                         SizedBox(width: 12),
                                         Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Container(
                                               padding: EdgeInsets.all(8),

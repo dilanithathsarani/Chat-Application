@@ -3,6 +3,7 @@ import 'package:chat_application/models/message_model.dart';
 import 'package:chat_application/models/user_model.dart';
 import 'package:chat_application/models/conversation_model.dart';
 import 'package:chat_application/providers/user_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -22,6 +23,7 @@ class ChatProvider extends ChangeNotifier {
   void setSelectUser(UserModel user) {
     _selectedUser = user;
     _selectedConversation = null;
+    listenToSelectedUser();
     notifyListeners();
   }
 
@@ -99,5 +101,16 @@ class ChatProvider extends ChangeNotifier {
   void dispose() {
     _messageController.dispose();
     super.dispose();
+  }
+
+  Stream<UserModel> listenToSelectedUser() {
+    final userCollection = FirebaseFirestore.instance.collection('users');
+
+    return userCollection.doc(_selectedUser!.uid).snapshots().map((snapshot) {
+      final userModel = UserModel.fromJson(
+        snapshot.data() as Map<String, dynamic>,
+      );
+      return userModel;
+    });
   }
 }

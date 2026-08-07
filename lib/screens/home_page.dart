@@ -20,11 +20,34 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _getFcmToken();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    _updateUserOnlineStatus(state);
+  }
+
+  Future<void> _updateUserOnlineStatus(AppLifecycleState state) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    await FirebaseFirestore.instance.collection('users').doc(uid).update({
+      'isOnline': state == AppLifecycleState.resumed,
+      'lastSeen': DateTime.now(),
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<void> _getFcmToken() async {
@@ -32,16 +55,15 @@ class _HomePageState extends State<HomePage> {
 
     final token = await firebaseMessaging.getToken();
     if (token != null) {
-      final uid= FirebaseAuth.instance.currentUser?.uid ?? '';
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .update({'fcmToken': token});
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return;
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'fcmToken': token,
+      });
     } else {
       Logger().e('Failed to get FCM token');
     }
   }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -260,4 +282,4 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-}
+
